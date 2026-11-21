@@ -1,0 +1,57 @@
+x-peer: &peer
+  build: .
+  depends_on:
+    directory:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  directory:
+    build: .
+    command: [directory, --bind, 0.0.0.0, --db, /data/directory.sqlite3]
+    restart: unless-stopped
+    volumes: ['directory-data:/data']
+    healthcheck:
+      test: [CMD, python, -c, "from urllib.request import urlopen; urlopen('http://127.0.0.1:8080/health', timeout=2).close()"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  peer1:
+    <<: *peer
+    command: [peer, --id, peer1, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer1:8101', --directory, 'http://directory:8080']
+    volumes: ['peer1-data:/data']
+
+  peer2:
+    <<: *peer
+    command: [peer, --id, peer2, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer2:8101', --directory, 'http://directory:8080']
+    volumes: ['peer2-data:/data']
+
+  peer3:
+    <<: *peer
+    command: [peer, --id, peer3, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer3:8101', --directory, 'http://directory:8080']
+    volumes: ['peer3-data:/data']
+
+  peer4:
+    <<: *peer
+    command: [peer, --id, peer4, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer4:8101', --directory, 'http://directory:8080']
+    volumes: ['peer4-data:/data']
+
+  peer5:
+    <<: *peer
+    command: [peer, --id, peer5, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer5:8101', --directory, 'http://directory:8080']
+    volumes: ['peer5-data:/data']
+
+  peer6:
+    <<: *peer
+    command: [peer, --id, peer6, --state, /data, --bind, 0.0.0.0, --port, '8101', --advertise, 'http://peer6:8101', --directory, 'http://directory:8080']
+    volumes: ['peer6-data:/data']
+
+volumes:
+  directory-data:
+  peer1-data:
+  peer2-data:
+  peer3-data:
+  peer4-data:
+  peer5-data:
+  peer6-data:

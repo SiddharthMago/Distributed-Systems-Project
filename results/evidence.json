@@ -1,0 +1,244 @@
+{
+  "host": "macOS-26.6.2-arm64-arm-64bit, Python 3.12.1",
+  "size_bytes": 104857600,
+  "chunk_size_bytes": 1048576,
+  "workers": 4,
+  "rate_mib_per_request": 4,
+  "peers": 6,
+  "runs": [
+    {
+      "elapsed_seconds": 7.077643458964303,
+      "retransmitted_bytes": 0,
+      "hash_equal": true,
+      "payload_bytes": 104857600,
+      "commits": 100,
+      "trial": 1,
+      "scenario": "baseline",
+      "verified_at_disconnect": null,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        },
+        {
+          "peer": "peer2",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        }
+      ],
+      "injection": null
+    },
+    {
+      "elapsed_seconds": 6.957397958030924,
+      "retransmitted_bytes": 196608,
+      "hash_equal": true,
+      "payload_bytes": 105054208,
+      "commits": 100,
+      "trial": 1,
+      "scenario": "disconnect",
+      "verified_at_disconnect": 52,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 28,
+          "payload_bytes": 27459584,
+          "verified_chunks": 26
+        },
+        {
+          "peer": "peer2",
+          "attempts": 74,
+          "payload_bytes": 77594624,
+          "verified_chunks": 74
+        }
+      ],
+      "injection": {
+        "peer": "peer1",
+        "verified_chunks": 52,
+        "active_at_disconnect": [
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 52,
+            "request_id": "d4628048-8dbd-4900-896b-0b33242389e0",
+            "bytes_written": 131072,
+            "length": 1048576
+          },
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 54,
+            "request_id": "4cc1b9b8-ef53-4471-be13-e194b24280c1",
+            "bytes_written": 65536,
+            "length": 1048576
+          }
+        ],
+        "partial_chunks_retried_on_peer2": [
+          52,
+          54
+        ],
+        "previously_committed_chunk_requests_after_failure": 0
+      }
+    },
+    {
+      "elapsed_seconds": 7.000900791957974,
+      "retransmitted_bytes": 0,
+      "hash_equal": true,
+      "payload_bytes": 104857600,
+      "commits": 100,
+      "trial": 2,
+      "scenario": "baseline",
+      "verified_at_disconnect": null,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        },
+        {
+          "peer": "peer2",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        }
+      ],
+      "injection": null
+    },
+    {
+      "elapsed_seconds": 7.001742458902299,
+      "retransmitted_bytes": 131072,
+      "hash_equal": true,
+      "payload_bytes": 104988672,
+      "commits": 100,
+      "trial": 2,
+      "scenario": "disconnect",
+      "verified_at_disconnect": 52,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 28,
+          "payload_bytes": 27394048,
+          "verified_chunks": 26
+        },
+        {
+          "peer": "peer2",
+          "attempts": 74,
+          "payload_bytes": 77594624,
+          "verified_chunks": 74
+        }
+      ],
+      "injection": {
+        "peer": "peer1",
+        "verified_chunks": 52,
+        "active_at_disconnect": [
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 52,
+            "request_id": "848d2433-cffd-477c-a722-9e1dc7ad051a",
+            "bytes_written": 65536,
+            "length": 1048576
+          },
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 54,
+            "request_id": "419fbbe9-aee7-40d3-9660-c27f40e91f99",
+            "bytes_written": 65536,
+            "length": 1048576
+          }
+        ],
+        "partial_chunks_retried_on_peer2": [
+          52,
+          54
+        ],
+        "previously_committed_chunk_requests_after_failure": 0
+      }
+    },
+    {
+      "elapsed_seconds": 7.019330250099301,
+      "retransmitted_bytes": 0,
+      "hash_equal": true,
+      "payload_bytes": 104857600,
+      "commits": 100,
+      "trial": 3,
+      "scenario": "baseline",
+      "verified_at_disconnect": null,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        },
+        {
+          "peer": "peer2",
+          "attempts": 50,
+          "payload_bytes": 52428800,
+          "verified_chunks": 50
+        }
+      ],
+      "injection": null
+    },
+    {
+      "elapsed_seconds": 6.996544084046036,
+      "retransmitted_bytes": 131072,
+      "hash_equal": true,
+      "payload_bytes": 104988672,
+      "commits": 100,
+      "trial": 3,
+      "scenario": "disconnect",
+      "verified_at_disconnect": 52,
+      "expected_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "actual_sha256": "c2d956589663b2c5fcd86e109e3060278db52afd7397ac204911afaa1144281e",
+      "peers": [
+        {
+          "peer": "peer1",
+          "attempts": 28,
+          "payload_bytes": 27394048,
+          "verified_chunks": 26
+        },
+        {
+          "peer": "peer2",
+          "attempts": 74,
+          "payload_bytes": 77594624,
+          "verified_chunks": 74
+        }
+      ],
+      "injection": {
+        "peer": "peer1",
+        "verified_chunks": 52,
+        "active_at_disconnect": [
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 52,
+            "request_id": "57ee2bf8-b1aa-4d51-8f29-8dcdb2c7e17d",
+            "bytes_written": 65536,
+            "length": 1048576
+          },
+          {
+            "file_id": "8f52abc9915f4ae8db2ec7018d228c293166c8e18d07c428a59abe69a47326b0",
+            "index": 54,
+            "request_id": "c31ee2df-b904-4321-921e-8bd0b449e684",
+            "bytes_written": 65536,
+            "length": 1048576
+          }
+        ],
+        "partial_chunks_retried_on_peer2": [
+          52,
+          54
+        ],
+        "previously_committed_chunk_requests_after_failure": 0
+      }
+    }
+  ]
+}

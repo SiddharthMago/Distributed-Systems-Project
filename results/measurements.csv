@@ -1,0 +1,7 @@
+trial,scenario,elapsed_seconds,retransmitted_bytes,hash_equal,verified_at_disconnect,payload_bytes,commits
+1,baseline,7.077643458964303,0,True,,104857600,100
+1,disconnect,6.957397958030924,196608,True,52,105054208,100
+2,baseline,7.000900791957974,0,True,,104857600,100
+2,disconnect,7.001742458902299,131072,True,52,104988672,100
+3,baseline,7.019330250099301,0,True,,104857600,100
+3,disconnect,6.996544084046036,131072,True,52,104988672,100

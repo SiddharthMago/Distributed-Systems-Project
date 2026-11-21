@@ -1,0 +1,4 @@
+*
+!requirements.txt
+!napster/
+!napster/*.py
