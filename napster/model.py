@@ -1,5 +1,6 @@
 """Content manifests and durable filesystem primitives."""
 
+import asyncio
 import hashlib
 import json
 import os
@@ -11,6 +12,18 @@ MIB = 1024 * 1024
 BLOCK = 64 * 1024
 MAX_CHUNK = 16 * MIB
 HEX = re.compile(r"[0-9a-f]{64}")
+
+
+async def disk_operation(operation, *args):
+    """Keep disk work off the HTTP loop and finish it before releasing job resources."""
+    task = asyncio.create_task(asyncio.to_thread(operation, *args))
+    try:
+        return await asyncio.shield(task)
+    except asyncio.CancelledError:
+        try:
+            await task
+        finally:
+            raise
 
 
 @dataclass(frozen=True)

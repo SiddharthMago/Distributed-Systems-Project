@@ -14,7 +14,7 @@ from uuid import uuid4
 
 from aiohttp import ClientError, ClientSession, ClientTimeout, TCPConnector
 
-from .model import BLOCK, Manifest, durable_replace, sha256_file
+from .model import BLOCK, Manifest, disk_operation, durable_replace, sha256_file
 from .service import connect
 
 LOG = logging.getLogger(__name__)
@@ -115,6 +115,12 @@ class Checkpoint:
         except BaseException:
             self.db.execute("ROLLBACK")
             raise
+
+
+def reconcile_saved(state, ident, manifest):
+    # Each thread owns its SQLite connection. The output lock covers this operation.
+    with closing(connect(state / "checkpoint.sqlite3")) as db:
+        return Checkpoint(state, db, ident, manifest).reconcile()
 
 
 def status(output, details=False):
@@ -283,9 +289,9 @@ async def download(directory, ident, output: Path, workers=4, timeout=10, rounds
                                  timeout=ClientTimeout(total=timeout), auto_decompress=False) as session:
             manifest, sources = await lookup(session, directory, ident)
             checkpoint = Checkpoint(state, db, ident, manifest)
-            missing = checkpoint.reconcile()
+            missing = await disk_operation(reconcile_saved, state, ident, manifest)
             await transfer(session, directory, checkpoint, missing, sources, workers, rounds)
-        actual = assemble(checkpoint, output)
+        actual = await disk_operation(assemble, checkpoint, output)
         elapsed = time.monotonic() - started
         result = status(output)
         result.update({"elapsed_seconds": elapsed, "resumed_chunks": len(manifest.chunks) - len(missing),

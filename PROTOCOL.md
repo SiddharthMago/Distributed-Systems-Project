@@ -19,6 +19,16 @@ flowchart LR
 
 A peer process registers its advertised origin when it starts. The publish CLI reads a local file, generates its manifest, records the file path in the peer's SQLite database, and posts metadata to the directory. Publication and registration can be repeated safely. Search matches a case-insensitive substring of a file name or manifest ID. A publication alias affects search and carries the same content ID as other aliases for the same manifest. The directory's lookup response includes all peer endpoints for that manifest.
 
+With `peer --interactive`, the same process also accepts `publish`, `search`,
+`download`, `status`, `health`, `help`, and `exit` at a peer prompt.
+The command parser supplies the peer's ID, state directory, and directory URL as
+defaults. Input is read asynchronously, and the HTTP service remains available
+while the terminal waits for input or executes a command. File manifest hashing,
+saved-chunk validation, and final assembly run in worker threads. SQLite connections
+used for checkpoint reconciliation belong to that worker thread. Cancellation waits
+for active disk work before releasing the checkpoint lock. The HTTP interfaces and
+on-disk formats are shared with the standalone client commands.
+
 ## HTTP interfaces
 
 | Service | Request | Data |

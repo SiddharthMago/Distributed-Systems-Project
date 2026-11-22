@@ -11,6 +11,18 @@ See [architecture and protocol](PROTOCOL.md) for message formats, retry behavior
 Use Python 3.12 on macOS or Linux. From the project root, create a virtual environment and install the project and analysis dependencies.
 
 ```sh
+make setup
+make test
+```
+
+These targets use the virtual environment's Python directly, so activation is
+unnecessary. GNU Make is available through the command-line developer tools on
+macOS and the `make` package on Linux or WSL. To use a different Python executable,
+run `make setup PYTHON=python3` with Python 3.12 installed.
+
+The equivalent commands without Make are:
+
+```sh
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
@@ -19,10 +31,78 @@ python -m pytest -q
 
 Use `requirements.txt` for the directory, peer, and client CLI only. The tests and local experiment bind temporary loopback ports. A four-core machine with 8 GB of RAM and 10 GB of free disk space is a planning estimate. The default experiment needs roughly 500 MiB for payload files at peak, plus logs, SQLite files, and Python dependencies. A 1 GiB trial needs roughly 5 GiB for payload files at peak. An RCE account is unnecessary for the local procedure.
 
+## Start services with Make
+
+Copy the configuration example once on each PC and edit the local values.
+
+```sh
+cp .env.example .env
+```
+
+The local `.env` is ignored by Git. It uses Make assignment syntax with unquoted
+values, such as `ID=peer1` and `IP=192.168.1.10`. Command-line assignments override
+the file, and omitted settings use the defaults at the top of the Makefile.
+Leave derived settings such as `STATE`, `ADVERTISE`, and `LOG` commented out to
+have them follow the chosen ID, IP, and port.
+
+For a local demonstration, start the directory in one terminal and each peer in
+its own terminal.
+
+```sh
+make directory
+make peer
+make peer ID=peer2 PORT=8102
+```
+
+For three PCs, set `IP` to each PC's reachable LAN or VPN address and
+`DIRECTORY_IP` to PC A's address on all PCs. This table gives an example layout.
+
+| PC | Example IP | Commands in separate terminals |
+| --- | --- | --- |
+| A | 192.168.1.10 | `make directory`, `make peer ID=peer1 PORT=8101`, `make peer ID=peer4 PORT=8104` |
+| B | 192.168.1.11 | `make peer ID=peer2 PORT=8102`, `make peer ID=peer5 PORT=8105` |
+| C | 192.168.1.12 | `make peer ID=peer3 PORT=8103`, `make peer ID=peer6 PORT=8106` |
+
+Start the directory first. You can supply the same settings directly without
+creating a configuration file.
+
+```sh
+make peer ID=peer2 IP=192.168.1.11 PORT=8102 DIRECTORY_IP=192.168.1.10
+```
+
+`IP` is the address advertised to other peers. `BIND=0.0.0.0` controls listening
+on all local IPv4 interfaces. Use a reachable IP for advertising. Each peer on a
+given PC needs a distinct port and state directory.
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `ID` | `peer1` | Peer identity |
+| `IP` | `127.0.0.1` | Advertised peer address |
+| `BIND` | `0.0.0.0` | Local listening interface |
+| `PORT` | `8101` | Peer listening port |
+| `DIRECTORY_IP` | `127.0.0.1` | Directory address used by peers |
+| `DIRECTORY_PORT` | `8080` | Directory listening and connection port |
+| `STATE` | `run/manual/$(ID)` | Persistent peer state |
+| `DB` | `run/manual/directory.sqlite3` | Persistent directory database |
+| `RATE` | `0.5` | MiB/s per outgoing request, zero disables throttling |
+| `LOG` | `run/manual/$(ID).log` | Append diagnostic logs, use `LOG=` to show them in the terminal |
+| `VERBOSE` | `1` | Log commits and retries, use `0` to disable |
+| `INTERACTIVE` | `1` | Enable the peer prompt, use `0` for server-only mode |
+| `CORRUPT_INDEX` | empty | Deliberately corrupt this chunk for testing |
+| `DIRECTORY_URL` | Derived from directory IP and port | Override the complete directory origin |
+| `ADVERTISE` | Derived from peer IP and port | Override the complete advertised origin |
+| `VENV` | `.venv` | Python environment directory |
+| `PYTHON` | `python3.12` | Interpreter used by `make setup` |
+
+For example, `make peer CORRUPT_INDEX=0` enables the corruption test and
+`make peer RATE=0 LOG=` starts an unthrottled peer with visible diagnostics.
+The prompt accepts `publish`, `search`, `download`, `status`, and `health` as
+described below. Ctrl-C stops a running service. `make help` lists the targets.
+
 ## Reproduce the failure experiment
 
 ```sh
-python -m napster.experiment
+make experiment
 ```
 
 The command launches one directory plus six peer processes for each run, publishes a deterministic 100 MiB file on peers 1 and 2, and downloads into peer 6's state directory. It runs three baselines and three peer-loss trials. In each peer-loss trial it stops peer 1 with SIGKILL once at least half the file is verified and peer 1 has an active request with a partially written body. It checks that the unfinished chunk was retried on peer 2, previously committed chunks were requested only once, each chunk was committed once, and the final hash equals the original fixture hash. The work directory retains process logs and SQLite evidence. The driver removes completed trial payload copies after verifying them to limit disk use.
@@ -34,7 +114,68 @@ python -m napster.experiment --size-mib 16 --trials 1 \
   --work-dir run/quick-demo --results run/quick-results
 ```
 
-## Launch the services yourself
+## Interactive peer terminals
+
+Start the directory in its own terminal.
+
+```sh
+python -m napster directory --db run/manual/directory.sqlite3
+```
+
+Start each peer in a separate terminal with `--interactive`. Its identity, state directory,
+and directory URL are remembered for commands entered at the prompt.
+
+```sh
+python -m napster --verbose peer --interactive --id peer1 \
+  --state run/manual/peer1 --port 8101
+```
+
+For a second local peer, use ID `peer2`, state `run/manual/peer2`, and port `8102`.
+For different PCs, provide reachable addresses once at startup.
+
+```sh
+python -m napster --verbose peer --interactive --id peer2 \
+  --state run/manual/peer2 --bind 0.0.0.0 --port 8101 \
+  --advertise http://THIS_PC_IP:8101 --directory http://DIRECTORY_PC_IP:8080
+```
+
+Replace the IP placeholders with reachable LAN or VPN addresses. Run these commands
+from the project root on each PC after activating its virtual environment.
+
+At the peer prompt, enter commands directly. Here `FILE_ID` means the actual ID
+returned by publish or search.
+
+```text
+peer1> health
+peer1> publish "path/to/sample.bin"
+peer1> search sample
+peer1> download FILE_ID "run/manual/received.bin" --workers 4
+peer1> status "run/manual/received.bin" --details
+peer1> help
+peer1> publish --help
+peer1> exit
+```
+
+The source path must exist on the PC running that peer. Paths are relative to the
+directory from which the process was started. Quote paths and search queries
+containing spaces. Type the command after the displayed prompt. Commands accept
+their existing options, including `publish --chunk-size`, `download --timeout`,
+and `download --rounds`. The `health` command checks both the local peer server
+and the configured directory and reports unreachable endpoints individually.
+
+The terminal runs one command at a time while the peer continues serving HTTP
+requests. Verbose mode prints chunk commits, retries, and checkpoint reuse.
+To inspect progress during a foreground download, run the existing `status`
+command in another terminal. Syntax errors and failed commands return to the
+prompt. `exit`, Ctrl-D at an empty prompt, or Ctrl-C stop the interactive peer.
+After an interrupted download, restart the peer and repeat `download` with the
+same file ID and output path to reuse its checkpoint.
+
+Interactive terminals use the same macOS/Linux environment as the services.
+Windows users can run them inside WSL. Start peers without `--interactive`
+for background processes, scripts, and Docker Compose.
+
+## Command-line services and clients
 
 In one terminal, run the directory.
 
